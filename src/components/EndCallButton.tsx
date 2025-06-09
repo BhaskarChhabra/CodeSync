@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
 import { Button } from "./ui/button";
 import toast from "react-hot-toast";
+import { stopAllMediaTracks } from "../lib/stopMedia";
 
 function EndCallButton() {
   const call = useCall();
@@ -24,24 +25,30 @@ function EndCallButton() {
   if (!isMeetingOwner) return null;
 
   const endCall = async () => {
-    try {
-      await call.endCall();
+  try {
+    console.log("Ending call", call?.id, interview?._id);
+    await call.endCall();
+    stopAllMediaTracks();
 
-      await updateInterviewStatus({
-        id: interview._id,
-        status: "completed",
-      });
-
-      router.push("/");
-      toast.success("Meeting ended for everyone");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to end meeting");
+    if (!interview?._id) {
+      toast.error("Interview not found");
+      return;
     }
-  };
 
+    await updateInterviewStatus({
+      id: interview._id,
+      status: "completed",
+    });
+
+    router.push("/");
+    toast.success("Meeting ended for everyone");
+  } catch (error) {
+    console.error("End call error:", error);
+    toast.error("Failed to end meeting");
+  }
+};
   return (
-    <Button variant={"destructive"} onClick={endCall}>
+    <Button variant="destructive" onClick={endCall}>
       End Meeting
     </Button>
   );

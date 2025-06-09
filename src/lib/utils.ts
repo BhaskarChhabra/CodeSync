@@ -1,6 +1,11 @@
-
 import { clsx, type ClassValue } from "clsx";
-import { addHours, intervalToDuration, isAfter, isBefore, isWithinInterval } from "date-fns";
+import {
+  addHours,
+  intervalToDuration,
+  isAfter,
+  isBefore,
+  isWithinInterval,
+} from "date-fns";
 import { twMerge } from "tailwind-merge";
 import { Doc } from "../../convex/_generated/dataModel";
 
@@ -11,10 +16,10 @@ export function cn(...inputs: ClassValue[]) {
 type Interview = Doc<"interviews">;
 type User = Doc<"users">;
 
-export const groupInterviews = (interviews: Interview[]) => {
-  if (!interviews) return {};
-
+export const groupInterviews = (interviews: Interview[] = []) => {
   return interviews.reduce((acc: any, interview: Interview) => {
+    if (!interview || !interview.startTime || !interview.status) return acc;
+
     const date = new Date(interview.startTime);
     const now = new Date();
 
@@ -49,7 +54,7 @@ export const getInterviewerInfo = (users: User[], interviewerId: string) => {
   const interviewer = users?.find((user) => user.clerkId === interviewerId);
   return {
     name: interviewer?.name || "Unknown Interviewer",
-    image: interviewer?.image,
+    image: interviewer?.image || "",
     initials:
       interviewer?.name
         ?.split(" ")
@@ -59,6 +64,8 @@ export const getInterviewerInfo = (users: User[], interviewerId: string) => {
 };
 
 export const calculateRecordingDuration = (startTime: string, endTime: string) => {
+  if (!startTime || !endTime) return "N/A";
+
   const start = new Date(startTime);
   const end = new Date(endTime);
 
@@ -74,21 +81,29 @@ export const calculateRecordingDuration = (startTime: string, endTime: string) =
     return `${duration.minutes}:${String(duration.seconds).padStart(2, "0")}`;
   }
 
-  return `${duration.seconds} seconds`;
+  return `${duration.seconds ?? 0} seconds`;
 };
 
 export const getMeetingStatus = (interview: Interview) => {
+  if (!interview || !interview.startTime) return "unknown";
+
   const now = new Date();
-  const interviewStartTime = interview.startTime;
+  const interviewStartTime = new Date(interview.startTime);
   const endTime = addHours(interviewStartTime, 1);
 
   if (
     interview.status === "completed" ||
     interview.status === "failed" ||
     interview.status === "succeeded"
-  )
+  ) {
     return "completed";
-  if (isWithinInterval(now, { start: interviewStartTime, end: endTime })) return "live";
+  }
+
+  if (isWithinInterval(now, { start: interviewStartTime, end: endTime })) {
+    return "live";
+  }
+
   if (isBefore(now, interviewStartTime)) return "upcoming";
+
   return "completed";
 };

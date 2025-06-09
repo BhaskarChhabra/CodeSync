@@ -7,17 +7,35 @@ import { CalendarIcon } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
-
 type Interview = Doc<"interviews">;
 
 function MeetingCard({ interview }: { interview: Interview }) {
   const { joinMeeting } = useMeetingActions();
 
+  // Log the entire interview object to check what fields exist
+  console.log("Interview object:", interview);
+
+  // Log startTime explicitly to see if it exists and its type
+  console.log("interview.startTime (raw):", interview.startTime);
+  console.log("interview.startTime (type):", typeof interview.startTime);
+
+  // Defensive check: log formatted date only if startTime exists
+  let formattedDate = "Invalid Date";
+  if (interview.startTime) {
+    try {
+      formattedDate = format(new Date(interview.startTime), "EEEE, MMMM d · h:mm a");
+    } catch (error) {
+      console.error("Error formatting startTime:", error);
+    }
+  } else {
+    console.warn("Warning: interview.startTime is undefined or null");
+  }
+
+  // Log endTime and current time for additional debugging
+  console.log("interview.endTime:", interview.endTime);
+  console.log("Current date/time:", new Date());
+
   const status = getMeetingStatus(interview);
-  const formattedDate = format(new Date(interview.startTime), "EEEE, MMMM d · h:mm a");
-console.log("startTime:", interview.startTime);
-console.log("endTime:", interview.endTime);
-console.log("now:", new Date());
 
   return (
     <Card>
@@ -60,4 +78,5 @@ console.log("now:", new Date());
     </Card>
   );
 }
+
 export default MeetingCard;
