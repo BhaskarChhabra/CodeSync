@@ -1,8 +1,8 @@
 export default {
   providers: [
     {
-      domain:"https://selected-gull-77.clerk.accounts.dev/" ,
+      domain: "https://climbing-cattle-3.clerk.accounts.dev/",
       applicationID: "convex",
     },
-  ]
+  ],
 };

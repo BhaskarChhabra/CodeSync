@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
@@ -12,7 +12,7 @@ function ConvexClerkProvider({ children }: { children: React.ReactNode }) {
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         {children}
       </ConvexProviderWithClerk>
-    </ClerkProvider>   
+    </ClerkProvider>
   );
 }
 

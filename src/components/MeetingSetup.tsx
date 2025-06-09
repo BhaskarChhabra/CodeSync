@@ -11,24 +11,20 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
 
   const call = useCall();
 
-  // Early return if no call object is available
   if (!call) return null;
 
-  // To help TypeScript, assign call to a non-null variable
-  const activeCall = call;
+  useEffect(() => {
+    if (isCameraDisabled) call.camera.disable();
+    else call.camera.enable();
+  }, [isCameraDisabled, call.camera]);
 
   useEffect(() => {
-    if (isCameraDisabled) activeCall.camera.disable();
-    else activeCall.camera.enable();
-  }, [isCameraDisabled, activeCall.camera]);
-
-  useEffect(() => {
-    if (isMicDisabled) activeCall.microphone.disable();
-    else activeCall.microphone.enable();
-  }, [isMicDisabled, activeCall.microphone]);
+    if (isMicDisabled) call.microphone.disable();
+    else call.microphone.enable();
+  }, [isMicDisabled, call.microphone]);
 
   const handleJoin = async () => {
-    await activeCall.join();
+    await call.join();
     onSetupComplete();
   };
 
@@ -58,7 +54,7 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
               {/* MEETING DETAILS  */}
               <div>
                 <h2 className="text-xl font-semibold mb-1">Meeting Details</h2>
-                <p className="text-sm text-muted-foreground break-all">{activeCall.id}</p>
+                <p className="text-sm text-muted-foreground break-all">{call.id}</p>
               </div>
 
               <div className="flex-1 flex flex-col justify-between">
@@ -133,5 +129,4 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
     </div>
   );
 }
-
 export default MeetingSetup;
