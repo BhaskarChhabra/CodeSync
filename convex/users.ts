@@ -25,23 +25,34 @@ export const syncUser = mutation({
 
 export const getUsers = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("User is not authenticated");
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        console.warn("Unauthorized access attempt to getUsers");
+        return []; 
+      }
 
-    const users = await ctx.db.query("users").collect();
-
-    return users;
+      return await ctx.db.query("users").collect();
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      throw new Error("Failed to fetch users");
+    }
   },
 });
 
 export const getUserByClerkId = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first();
+    try {
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+        .first();
 
-    return user;
+      return user || null; 
+    } catch (error) {
+      console.error("Error fetching user by Clerk ID:", error);
+      throw new Error("Failed to fetch user");
+    }
   },
 });

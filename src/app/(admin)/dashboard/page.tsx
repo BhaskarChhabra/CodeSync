@@ -61,11 +61,13 @@ function DashboardPage() {
                     const startTime = new Date(interview.startTime);
 
                     return (
-                      <Card className="hover:shadow-md transition-all">
+                      <Card 
+                      key = {interview._id}
+                       className="hover:shadow-md transition-all">
                         {/* CANDIDATE INFO */}
                         <CardHeader className="p-4">
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
+                            < Avatar className="h-10 w-10">
                               <AvatarImage src={candidateInfo.image} />
                               <AvatarFallback>{candidateInfo.initials}</AvatarFallback>
                             </Avatar>

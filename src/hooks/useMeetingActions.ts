@@ -1,41 +1,46 @@
-import { useRouter } from "next/navigation";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
-import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import toast from 'react-hot-toast'
+
+
 
 const useMeetingActions = () => {
-  const router = useRouter();
-  const client = useStreamVideoClient();
+	const router = useRouter();
+	const client = useStreamVideoClient();
 
-  const createInstantMeeting = async () => {
-    if (!client) return;
+	// let callId = "";
 
-    try {
-      const id = crypto.randomUUID();
-      const call = client.call("default", id);
+	const createInstantMeeting = async ()=> {
+		if(!client) return ;
 
-      await call.getOrCreate({
-        data: {
-          starts_at: new Date().toISOString(),
-          custom: {
-            description: "Instant Meeting",
-          },
-        },
-      });
+		try{
+			const id = crypto.randomUUID();
+			const call = client.call("default", id);
 
-      router.push(`/meeting/${call.id}`);
-      toast.success("Meeting Created");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create meeting");
-    }
-  };
+			await call.getOrCreate({
+				data: {
+					starts_at: new Date().toISOString(),
+					custom: {
+						description: "Instant Meeting"
+					},
+				},
+			})
 
-  const joinMeeting = (callId: string) => {
-    if (!client) return toast.error("Failed to join meeting. Please try again.");
-    router.push(`/meeting/${callId}`);
-  };
+			// callId = call.id.toString();
+			router.push(`/meeting/${call.id}`)
+			toast.success("Meeting created")
+		} catch(e){
+			console.log(e)
+			toast.error("failed to create meeting")
+		}
+	}
 
-  return { createInstantMeeting, joinMeeting };
-};
+	const joinMeeting = (callId: string)=> {
+		if(!client) return toast.error("Failed to join the meeting. Please try again");
+		router.push(`/meeting/${callId}`)
+	}
+
+	return { createInstantMeeting, joinMeeting };
+}
 
 export default useMeetingActions;

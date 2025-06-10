@@ -13,7 +13,10 @@ function MeetingCard({ interview }: { interview: Interview }) {
   const { joinMeeting } = useMeetingActions();
 
   const status = getMeetingStatus(interview);
-  const formattedDate = format(new Date(interview.startTime), "EEEE, MMMM d · h:mm a");
+ const formattedDate =
+  typeof interview.startTime === "number" && !isNaN(interview.startTime)
+    ? format(new Date(interview.startTime), "yyyy-MM-dd")
+    : "Invalid date";
 
   return (
     <Card>

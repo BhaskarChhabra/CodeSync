@@ -31,7 +31,7 @@ function RecordingCard({ recording }: { recording: CallRecording }) {
       <CardHeader className="space-y-1">
         <div className="space-y-2">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center text-sm text-muted-foreground gap-2">
+            <div className="flex items-center text-sm text-teal-500 gap-2">
               <CalendarIcon className="h-3.5 w-3.5" />
               <span>{formattedStartTime}</span>
             </div>
@@ -56,12 +56,12 @@ function RecordingCard({ recording }: { recording: CallRecording }) {
         </div>
       </CardContent>
       <CardFooter className="gap-2">
-        <Button className="flex-1" onClick={() => window.open(recording.url, "_blank")}>
-          <PlayIcon className="size-4 mr-2" />
+        <Button className="flex-1 bg-teal-500 cursor-pointer" onClick={() => window.open(recording.url, "_blank")}>
+          <PlayIcon className="size-4 mr-2 " />
           Play Recording
         </Button>
-        <Button variant="secondary" onClick={handleCopyLink}>
-          <CopyIcon className="size-4" />
+        <Button className="cursor-pointer" variant="secondary" onClick={handleCopyLink}>
+          <CopyIcon className="size-4 text-teal-500" />
         </Button>
       </CardFooter>
     </Card>
