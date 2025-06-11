@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "react-hot-toast";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -45,6 +45,8 @@ export default function RootLayout({
               <Navbar/>
               <main className="px-4 sm:px-6 lg:px-8">
               {children}
+               <SpeedInsights />
+              
               </main>
             </div>
             </SignedIn>
