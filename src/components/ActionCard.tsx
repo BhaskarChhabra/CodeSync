@@ -30,7 +30,7 @@ function ActionCard({ action, onClick }: { action: QuickActionType; onClick: () 
 
           {/* ACTION DETAILS */}
           <div className="space-y-1">
-            <h3 className="font-semibold text-teal-500 text-xl group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-xl group-hover:text-primary transition-colors">
               {action.title}
             </h3>
             <p className="text-sm text-muted-foreground">{action.description}</p>

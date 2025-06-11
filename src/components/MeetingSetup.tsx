@@ -22,10 +22,21 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
     else call.microphone?.enable();
   }, [isMicDisabled, call]);
 
-  const handleJoin = async () => {
-    await call.join();
+  const [joining, setJoining] = useState(false);
+
+const handleJoin = async () => {
+  if (joining) return; // prevent duplicate joins
+  setJoining(true);
+
+  try {
+    await call.join(); // ✅ only join once
     onSetupComplete();
-  };
+  } catch (error) {
+    console.error("Failed to join call:", error);
+  } finally {
+    setJoining(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background/95">

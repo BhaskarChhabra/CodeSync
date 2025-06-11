@@ -50,61 +50,76 @@ function InterviewScheduleUI() {
   });
 
   const scheduleMeeting = async () => {
-    if (!client || !user) return;
-    if (!formData.candidateId || formData.interviewerIds.length === 0) {
-      toast.error("Please select both candidate and at least one interviewer");
-      return;
-    }
+  if (!client || !user) return;
 
-    setIsCreating(true);
+  if (!formData.candidateId || formData.interviewerIds.length === 0) {
+    toast.error("Please select both candidate and at least one interviewer");
+    return;
+  }
 
-    try {
-      const { title, description, date, time, candidateId, interviewerIds } = formData;
-      const [hours, minutes] = time.split(":");
-      const meetingDate = new Date(date);
-      meetingDate.setHours(parseInt(hours), parseInt(minutes), 0);
+  // Time logic
+  const now = new Date();
+  const { title, description, date, time, candidateId, interviewerIds } = formData;
+  const [hours, minutes] = time.split(":").map(Number);
 
-      const id = crypto.randomUUID();
-      const call = client.call("default", id);
+  const selectedDateTime = new Date(date);
+  selectedDateTime.setHours(hours, minutes, 0, 0);
 
-      await call.getOrCreate({
-        data: {
-          starts_at: meetingDate.toISOString(),
-          custom: {
-            description: title,
-            additionalDetails: description,
-          },
+  // if selected date is today and time is in the past — show error
+  // const isSameDate =
+  //   now.getFullYear() === selectedDateTime.getFullYear() &&
+  //   now.getMonth() === selectedDateTime.getMonth() &&
+  //   now.getDate() === selectedDateTime.getDate();
+
+  // if (isSameDate && selectedDateTime < now) {
+  //   toast.error("Please select a valid future time");
+  //   return;
+  // }
+
+  setIsCreating(true);
+
+  try {
+    const id = crypto.randomUUID();
+    const call = client.call("default", id);
+
+    await call.getOrCreate({
+      data: {
+        starts_at: selectedDateTime.toISOString(),
+        custom: {
+          description: title,
+          additionalDetails: description,
         },
-      });
+      },
+    });
 
-      await createInterview({
-        title,
-        description,
-        startTime: meetingDate.getTime(),
-        status: "upcoming",
-        streamCallId: id,
-        candidateId,
-        interviewerIds,
-      });
+    await createInterview({
+      title,
+      description,
+      startTime: selectedDateTime.getTime(),
+      status: "upcoming",
+      streamCallId: id,
+      candidateId,
+      interviewerIds,
+    });
 
-      setOpen(false);
-      toast.success("Meeting scheduled successfully!");
+    setOpen(false);
+    toast.success("Meeting scheduled successfully!");
 
-      setFormData({
-        title: "",
-        description: "",
-        date: new Date(),
-        time: "09:00",
-        candidateId: "",
-        interviewerIds: user?.id ? [user.id] : [],
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to schedule meeting. Please try again.");
-    } finally {
-      setIsCreating(false);
-    }
-  };
+    setFormData({
+      title: "",
+      description: "",
+      date: new Date(),
+      time: "09:00",
+      candidateId: "",
+      interviewerIds: user?.id ? [user.id] : [],
+    });
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to schedule meeting. Please try again.");
+  } finally {
+    setIsCreating(false);
+  }
+};
 
   const addInterviewer = (interviewerId: string) => {
     if (!formData.interviewerIds.includes(interviewerId)) {
@@ -130,6 +145,20 @@ function InterviewScheduleUI() {
   const availableInterviewers = interviewers.filter(
     (i) => !formData.interviewerIds.includes(i.clerkId)
   );
+
+  // Dynamic time slot filtering
+const isToday =
+  formData.date.toDateString() === new Date().toDateString();
+
+const currentHour = new Date().getHours();
+
+const timeOptions = isToday
+  ? TIME_SLOTS.filter((t) => {
+      const [hour] = t.split(":").map(Number);
+      return hour >= currentHour;
+    })
+  : TIME_SLOTS;
+
 
   return (
     <div className="container max-w-7xl mx-auto p-6 space-y-8">
@@ -236,12 +265,29 @@ function InterviewScheduleUI() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Date</label>
                   <Calendar
-                    mode="single"
-                    selected={formData.date}
-                    onSelect={(date) => date && setFormData({ ...formData, date })}
-                    disabled={(date) => date < new Date()}
-                    className="rounded-md border"
-                  />
+  mode="single"
+  selected={formData.date}
+  onSelect={(date) => {
+    if (!date) return;
+
+    // fix: allow reselecting today
+    const isSameDay =
+      date.toDateString() === formData.date.toDateString();
+
+    if (isSameDay) {
+      // Force re-render by setting to null then back to date
+      setFormData((prev) => ({ ...prev, date: new Date(0) })); // temporary dummy date
+      setTimeout(() => {
+        setFormData((prev) => ({ ...prev, date }));
+      }, 0);
+    } else {
+      setFormData((prev) => ({ ...prev, date }));
+    }
+  }}
+  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} // Disable past dates only
+  className="rounded-md border"
+/>
+
                 </div>
 
                 {/* TIME */}
@@ -256,11 +302,11 @@ function InterviewScheduleUI() {
                       <SelectValue placeholder="Select time" />
                     </SelectTrigger>
                     <SelectContent>
-                      {TIME_SLOTS.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
+                      {timeOptions.map((time) => (
+    <SelectItem key={time} value={time}>
+      {time}
+    </SelectItem>
+  ))}
                     </SelectContent>
                   </Select>
                 </div>

@@ -13,7 +13,7 @@ function CodeEditor() {
   const [language, setLanguage] = useState<"javascript" | "python" | "java" | "cpp">(LANGUAGES[0].id);
   const [code, setCode] = useState(selectedQuestion.starterCode[language]);
   const [output, setOutput] = useState<string>("");
-  const [userInput, setUserInput] = useState<string>(""); // ⬅ New Input State
+  const [userInput, setUserInput] = useState<string>(""); //  New Input State
 
   const handleQuestionChange = (questionId: string) => {
     const question = CODING_QUESTIONS.find((q) => q.id === questionId)!;
@@ -274,7 +274,7 @@ function CodeEditor() {
         <div className="h-full bg-black text-white p-4">
           <div className="flex items-center gap-2 pb-2 border-b border-gray-700">
             <TerminalIcon className="w-5 h-5 text-green-400" />
-            <h3 className="text-lg font-semibold text-teal-400">Terminal</h3>
+            <h3 className="text-lg font-semibold ">Terminal</h3>
           </div>
           <pre className="whitespace-pre-wrap mt-2">{output}</pre>
         </div>
