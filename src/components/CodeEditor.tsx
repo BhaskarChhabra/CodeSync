@@ -13,7 +13,7 @@ function CodeEditor() {
   const [language, setLanguage] = useState<"javascript" | "python" | "java" | "cpp">(LANGUAGES[0].id);
   const [code, setCode] = useState(selectedQuestion.starterCode[language]);
   const [output, setOutput] = useState<string>("");
-  const [userInput, setUserInput] = useState<string>(""); //  New Input State
+  const [userInput, setUserInput] = useState<string>(""); // ⬅ New Input State
 
   const handleQuestionChange = (questionId: string) => {
     const question = CODING_QUESTIONS.find((q) => q.id === questionId)!;

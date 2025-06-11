@@ -65,16 +65,17 @@ function InterviewScheduleUI() {
   const selectedDateTime = new Date(date);
   selectedDateTime.setHours(hours, minutes, 0, 0);
 
-  // if selected date is today and time is in the past — show error
-  // const isSameDate =
-  //   now.getFullYear() === selectedDateTime.getFullYear() &&
-  //   now.getMonth() === selectedDateTime.getMonth() &&
-  //   now.getDate() === selectedDateTime.getDate();
 
-  // if (isSameDate && selectedDateTime < now) {
-  //   toast.error("Please select a valid future time");
-  //   return;
-  // }
+
+const isToday = selectedDateTime.toDateString() === now.toDateString();
+const currentHour = now.getHours();
+const selectedHour = selectedDateTime.getHours();
+
+if (isToday && selectedHour < currentHour) {
+  toast.error("Please select a valid future time");
+  return;
+}
+
 
   setIsCreating(true);
 
@@ -146,18 +147,7 @@ function InterviewScheduleUI() {
     (i) => !formData.interviewerIds.includes(i.clerkId)
   );
 
-  // Dynamic time slot filtering
-const isToday =
-  formData.date.toDateString() === new Date().toDateString();
-
-const currentHour = new Date().getHours();
-
-const timeOptions = isToday
-  ? TIME_SLOTS.filter((t) => {
-      const [hour] = t.split(":").map(Number);
-      return hour >= currentHour;
-    })
-  : TIME_SLOTS;
+  const timeOptions = TIME_SLOTS;
 
 
   return (
@@ -268,25 +258,18 @@ const timeOptions = isToday
   mode="single"
   selected={formData.date}
   onSelect={(date) => {
-    if (!date) return;
-
-    // fix: allow reselecting today
-    const isSameDay =
-      date.toDateString() === formData.date.toDateString();
-
-    if (isSameDay) {
-      // Force re-render by setting to null then back to date
-      setFormData((prev) => ({ ...prev, date: new Date(0) })); // temporary dummy date
-      setTimeout(() => {
-        setFormData((prev) => ({ ...prev, date }));
-      }, 0);
-    } else {
+    if (date) {
       setFormData((prev) => ({ ...prev, date }));
     }
   }}
-  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))} // Disable past dates only
+  disabled={(date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  }}
   className="rounded-md border"
 />
+
 
                 </div>
 
